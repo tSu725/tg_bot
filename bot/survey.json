@@ -1,0 +1,14 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "text": "ты пидор",
+      "type": "text"
+    },
+    {
+      "id": 2,
+      "text": "я гей",
+      "type": "yes_no"
+    }
+  ]
+}

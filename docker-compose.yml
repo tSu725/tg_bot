@@ -1,0 +1,9 @@
+services:
+  telegram-bot:
+    build: ./bot                  # ← папка, где Dockerfile и код
+    container_name: telegram-bot
+    volumes:
+      - ./bot:/app                # ← монтируем именно папку с кодом
+    env_file:
+      - bot/.env
+    restart: unless-stopped

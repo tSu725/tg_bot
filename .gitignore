@@ -1,0 +1,17 @@
+# PyCharm / IntelliJ
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+.venv/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
