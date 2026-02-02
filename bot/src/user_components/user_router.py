@@ -20,7 +20,7 @@ user_router.callback_query.middleware(DBMiddleware(user_db))
 async def start(message: Message, users: UserManager):
     if users.get_user_index(message.from_user.id):
         await message.answer(
-            text="статус: ",  # zero-width space
+            text="статус: ", # тут бы бд конечно мда
             reply_markup=status_kb
         )
     else:
