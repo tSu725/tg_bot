@@ -2,9 +2,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from src.survey_components.survey_callbacks import SurveyCallback, SurveyAction
 from src.admin_components.admin_callbacks import AdminCallback, AdminAction
 
-
-
-
 survey_menu_inline_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(

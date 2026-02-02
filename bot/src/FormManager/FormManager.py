@@ -9,7 +9,7 @@ class FormManager:
         self.data: Dict[str, Any] = self._load()
         self._next_id = self._get_next_id()
 
-    def refresh(self):
+    def _refresh(self):
         self.data = self._load()
         self._next_id = self._get_next_id()
 
@@ -40,7 +40,6 @@ class FormManager:
         max_id = max(q["id"] for q in self.data["questions"])
         return max_id + 1
 
-
     def create(self) -> None:
         if self.FILE_PATH.exists():
             return
@@ -59,14 +58,14 @@ class FormManager:
         return new_question["id"]
 
     def get_question_by_id(self, question_id: int) -> Optional[Dict[str, Any]]:
-        self.refresh()
+        self._refresh()
         for q in self.data["questions"]:
             if q["id"] == question_id:
                 return q
         return None
 
     def edit_question(self, question_id: int, new_text: Optional[str] = None, new_type: Optional[str] = None) -> bool:
-        self.refresh()
+        self._refresh()
         question = self.get_question_by_id(question_id)
         if not question:
             print(f"Вопрос с id {question_id} не найден.")
@@ -79,7 +78,7 @@ class FormManager:
         return True
 
     def delete_question(self, question_id: int) -> bool:
-        self.refresh()
+        self._refresh()
         original_count = len(self.data["questions"])
         self.data["questions"] = [q for q in self.data["questions"] if q["id"] != question_id]
         if len(self.data["questions"]) == original_count:
@@ -91,7 +90,7 @@ class FormManager:
         return True
 
     def get_form_for_admin(self) -> str:
-        self.refresh()
+        self._refresh()
         if not self.data.get('questions'):
             return "Анкета пуста"
         lines = [f"#{q['id']} {q['text']} ({q['type']})" for q in self.data['questions']]
@@ -101,5 +100,10 @@ class FormManager:
         self.data["questions"] = []
         self._next_id = 1
         self._save()
+
+
+    def __len__(self) -> int:
+        return len(self.data['questions'])
+
 
 

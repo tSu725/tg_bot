@@ -14,7 +14,6 @@ from src.survey_components.survey_keyboards import (
     survey_menu_edit_back_or_next_inline_keyboard as back_or_next_kb
 )
 
-form = FormManager()
 survey_router = Router(name='survey_router')
 
 @survey_router.callback_query(AdminCallback.filter(F.action == AdminAction.SURVEY_BACK))
@@ -45,7 +44,7 @@ async def add_question_type(message: Message, state: FSMContext):
     )
 
 @survey_router.callback_query(SurveyFSM.add_question, F.data.startswith("type:"))
-async def add_question_process(callback: CallbackQuery, state: FSMContext):
+async def add_question_process(callback: CallbackQuery, state: FSMContext, form: FormManager):
     await state.update_data(add_question_type=callback.data)
     data = await state.get_data()
     question_text, question_type = data.get("add_question"), data.get('add_question_type').split(":", 1)[1]
@@ -67,7 +66,7 @@ async def delete_question_start(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
 @survey_router.message(SurveyFSM.delete_question)
-async def delete_question_process(message: Message, state: FSMContext):
+async def delete_question_process(message: Message, state: FSMContext, form: FormManager):
     question_id = await survey_int_validator(message)
     if form.delete_question(question_id):
         await message.answer(
@@ -92,28 +91,24 @@ async def edit_question_start(callback: CallbackQuery, state: FSMContext):
 
 
 @survey_router.message(SurveyFSM.edit_question_id)
-async def edit_question_id(message: Message, state: FSMContext):
+async def edit_question_id(message: Message, state: FSMContext, form: FormManager):
     question_id = await survey_int_validator(message)
     if question_id is None:
         return
-
     if not form.get_question_by_id(question_id):
         await message.answer(
             text=f'Вопрос с номером {question_id} не найден. Попробуй ещё раз.',
             reply_markup=back_kb
         )
         return
-
     await state.update_data(edit_question_id=question_id)
     await state.set_state(SurveyFSM.edit_question_text)
-
     await message.answer(
         text='Введите новый текст вопроса:',
         reply_markup=back_or_next_kb
     )
 
-
-@survey_router.callback_query(SurveyFSM.edit_question_text,SurveyCallback.filter(F.action == SurveyAction.QUESTION_TYPE))
+@survey_router.callback_query(SurveyFSM.edit_question_text, SurveyCallback.filter(F.action == SurveyAction.QUESTION_TYPE))
 async def skip_edit_question_text(callback: CallbackQuery, state: FSMContext):
     await state.set_state(SurveyFSM.edit_question_type)
     await callback.message.edit_text(
@@ -131,12 +126,10 @@ async def edit_question_text(message: Message, state: FSMContext):
         reply_markup=question_type_kb
     )
 
-
 @survey_router.callback_query(SurveyFSM.edit_question_type, F.data.startswith("type:"))
-async def edit_question_process(callback: CallbackQuery, state: FSMContext):
+async def edit_question_process(callback: CallbackQuery, state: FSMContext, form: FormManager):
     data = await state.get_data()
     new_type = callback.data.split(":", 1)[1]
-
     form.edit_question(
         question_id=data.get('edit_question_id'),
         new_text=data.get('new_question_text'),
